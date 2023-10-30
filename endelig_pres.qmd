@@ -1,0 +1,484 @@
+---
+title: "sec_ass"
+author: "Håkon Alne Paulsen og Hilde Kristin Jensen"
+format:
+  revealjs:
+        theme: night
+        reveal_options:
+        code-fold: show
+        incremental: true
+        smaller: true
+        scrollable: true
+        slide-number: c/t
+editor: visual
+editor_options:
+  markdown:
+    wrap: 72
+    canonical: true
+    chunk_output_type: console
+echo: false
+eval: true
+bibliography: Datasetthoyde-inntekt.bib
+nocite: '@*'
+---
+
+```{r}
+#| label: setup
+#| echo: false
+#| output: false
+#| message: false
+library(vtable)
+library(tidyverse)
+library(ggplot2)
+library(tinytex)
+library(ggpubr)
+```
+
+```{r}
+#| echo: false
+hoyde <- modelr::heights
+hoyde <- hoyde |>
+  mutate(
+    bmi = weight * 0.4536/(height * 2.54/100)^2,
+    married = fct_collapse(
+      .f = marital,
+      married = "married",
+      other_level = "not married"
+      ),
+    edu_fac = cut(
+      x = education,
+      breaks = c(0, 12, 14, 16, 21),
+      labels = c("not_hs", "not_cc", "not_col", "col_plus"),
+      right = FALSE
+      )
+    ) |>
+  select(income:age, education:bmi, everything()) |>
+  select(-education, -marital)
+hoydeZeroInc <- hoyde |>
+  filter(income == 0)
+hoydeNormInc <- hoyde |>
+  filter(income > 0 & income < 343830)
+hoydeHighInc <- hoyde |>
+  filter(income == 343830)
+```
+
+## Innledning
+
+I denne oppgaven skal vi se på to ulike sammenhenger. Sammenhengen
+mellom evnenivå og inntekt, og sammenhengen mellom ansiennitet og
+inntekt.
+
+Vi bruker datasettet heights og deler datasettet opp i tre ulike fordelt
+på inntektsnivået. Det første settet er for de med ingen inntekt. Det
+andre settet er for normal inntekt der selve inntekten er mellom 0 og
+343 830 amerikanske dollar. Det siste settet er for de 2% høyeste
+inntektene. Gjennomsnittlig inntekt for disse øvre 2% er 343 830
+amerikanske dollar.
+
+Når vi sammeligner evnenivå og inntekt, bruker vi variabelen afqt. Dette
+er en måleenhet som det amerikanske militæret bruker til å måle
+evnenivå. @zotero-254
+
+## Litteraturgjennomgang
+
+Tidligere forskning viser at det er en sammenheng mellom inntekt og
+evnenivå. Det er påvis at for hvert ekstra IQ poeng, kan inntekten øke
+fra \$234 til \$616 per år @zagorsky2007. Tidligere forskning med søsken
+viser at forholdet mellom inntekt og evnenivå er sterkere mellom søstre
+sammenlignet med brødre @bound1986.
+
+## Sammenheng mellom inntekt og evnenivå i hoydeNormInc
+
+```{r}
+#| warning: false
+#| label: fig-afqt-inc
+#| fig-cap: "sammenheng mellom afqt og inntekt"
+hoydeNormInc |>
+  filter(!is.na(afqt)) |> 
+  ggplot(mapping = aes(x = afqt, y = income)) +
+  geom_point() +
+  geom_smooth()
+```
+
+## Afqt i hoydeZeroInc og hodeHighInc
+
+```{r}
+#| warning: false
+#| label: fig-afqt-incLevel
+#| fig-cap: "Tetthetsfunksjoner for evnenivå for de tre inntekstgruppene, ZeroInc (blå), NormInc (green) og HighInc (red)."
+ggplot() +
+  geom_density(
+    data = hoydeZeroInc,
+    mapping = aes(x = afqt),
+    alpha = 0.3,
+    colour = "blue",
+    fill = "blue"
+    ) +
+  geom_density(
+    data = hoydeHighInc,
+    mapping = aes(x = afqt),
+    alpha = 0.3,
+    colour = "red",
+    fill = "red"
+  ) +
+  geom_density(
+    data = hoydeNormInc,
+    mapping = aes(x = afqt),
+    alpha = 0.3,
+    colour = "green",
+    fill = "green"
+  )
+```
+
+## Afqt og inntekt fordelt på kjønn
+
+```{r}
+#| warning: false
+hoydeNormInc |> 
+  filter(!is.na(afqt)) |> 
+  ggplot(mapping = aes(x = afqt, y = income)) +
+  geom_point() +
+  geom_smooth(method = lm, se = FALSE) +
+  facet_wrap(~ sex)
+```
+
+## Utdanningsnivå og afqt
+
+```{r}
+#| warning: false
+hoyde |>
+  filter(!is.na(edu_fac)) |> 
+  ggplot(
+    mapping = aes(
+    x = afqt,
+    y = edu_fac
+  )
+) +
+geom_boxplot() 
+```
+
+## Sammenheng mellom høyde og afqt
+
+```{r}
+#| warning: false
+hoyde |>
+  select(afqt, height) |>
+  ggplot(mapping = aes(x = afqt, y = height)) +
+  geom_point() +
+  geom_smooth(method = lm)
+```
+
+## 
+
+```{r}
+#| warning: false
+hoyde |>
+  ggplot() +
+  geom_histogram(
+    data = filter(hoyde, sex == "male"),
+    mapping = aes(x = afqt, y = after_stat(density)),
+    alpha = 0.3,
+    colour = "blue",
+    fill = "blue"
+  ) + 
+  geom_histogram(
+    data = filter(hoyde, sex == "female"),
+    mapping = aes(x = afqt, y = after_stat(density)),
+    alpha = 0.5,
+    colour = "red",
+    fill = "red"
+  )
+```
+
+```{r}
+hoyde |>
+  filter(!is.na(afqt)) %>% 
+  ggplot() +
+  geom_density(
+    mapping = aes(x = afqt, fill = sex, colour = sex),
+    alpha = 0.3
+  )
+```
+
+## Sammenheng mellom ansiennitet og inntekt
+
+Vi lager en scatter-plot med regresjonslinje for å undersøke om det er
+sammenheng mellom ansennitet og inntekt.
+
+```{r}
+hoyde |> 
+  ggplot(
+  mapping = aes(
+    x = age,
+    y = income
+    )
+  ) + 
+      geom_jitter(
+    size = 0.5,
+    alpha = 0.40
+    ) +
+  geom_smooth(
+    formula = y ~ x,
+    method = "lm",
+    colour = "black",
+    lwd = 1,
+    se = FALSE
+    )
+```
+
+Det virker som at regresjonslinjen er horisontal, det vil si at det ikke
+virker å være sammenheng mellom ansennitet og alder. Dette virker
+snodig, men vi må ha i bakhodet at datasettet vi arbeider med har
+aldersgruppene 48-56, noe som kan tilsi at de allerede er på toppen av
+sin ansennitet
+
+Vi undersøker deretter om det er sammenheng mellom ansennitet og alder
+på de forskjellige kjønn:
+
+```{r}
+#| message: false
+hoydeNormInc %>%
+  ggplot(aes(x = age, y = income, color = sex)) +
+  geom_point(
+    size = 2,
+    alpha = 0.5
+  ) +
+  geom_smooth(
+    aes(group = sex),
+    method = "lm",
+    se = FALSE
+  ) +
+  labs(
+    x = "Age",
+    y = "Income",
+    color = "Sex"
+    )
+```
+
+Regresjonslinjene viser igjen at mer ansennitet ikke nødvendigvis gir
+høyere lønn, selv fordelt på kjønn.
+
+Vi lager et histogram av dataene fordelt på undergrupper.
+
+Vi starter med å regne ut gjennomsnittlig ansennitet og standardavvik
+for hhv. menn og kvinner. Disse parametrene vil vi bruke for å tegne inn
+normalfordelingskurver i samme plot.
+
+```{r}
+meanAgeMale <- hoyde |> 
+  filter(sex == 'male') %>% 
+  select(age) |> 
+  pull() |> 
+  mean()
+
+meanAgeFemale <- hoyde |> 
+  filter(sex == 'female') %>% 
+  select(age) |> 
+  pull() |> 
+  mean()
+
+# standard deviation
+sdAgeMale <- hoyde |> 
+  filter(sex == 'male') |> 
+  select(age) |> 
+  pull() |> 
+  sd()
+
+sdAgeFemale <- hoyde |>
+  filter(sex == 'female') |>
+  select(age) |>
+  pull() |> 
+  sd()
+```
+
+```{r}
+hoyde %>%
+  ggplot() +
+  ### male ###
+  geom_histogram(
+    data = filter(hoyde, sex == "male"),
+    mapping = aes(x = age, y = after_stat(density)),
+    binwidth = 1, alpha = 0.3, colour = 'blue', fill = 'blue'
+    ) + 
+  geom_vline(
+    xintercept = meanAgeMale,
+    colour = 'grey40', lwd = 0.75, linetype = 3
+    ) +
+  stat_function(
+    fun = dnorm,
+    args = list(mean = meanAgeMale, sd = sdAgeMale),
+    colour = 'grey40'
+    ) +
+  # female
+  geom_histogram(
+    data = filter(hoyde, sex == "female"),
+    mapping = aes(x = age, y = after_stat(density)),
+    binwidth = 1, alpha = 0.7, colour = 'pink', fill = 'pink'
+    ) +
+  stat_function(
+    fun = dnorm, args = list(mean = meanAgeFemale, sd = sdAgeFemale),
+    colour = 'pink'
+    ) +
+  geom_vline(
+    xintercept = meanAgeFemale, colour = 'pink', lwd = 0.75, linetype = 3
+    )
+```
+
+Histogrammene viser at i dette datasettet er det mer kvinner enn menn i
+aldersgruppen 53-56 år. Da kvinner har lavere inntekt enn menn kan dette
+forklare resultatet i sammenhengen mellom ansennitet og alder. Jo lengre
+ansennitet en har, jo høyere er kvinneandelen, med medførende lavere
+inntekt, som kan forklare at lengre ansennitet ikke fører til høyere
+lønn. Det er ikke lønna som går ned, det er at menn med høyere inntekt
+forsvinner.
+
+En litt enklere variant:
+
+```{r}
+hoydeNormInc |>
+  ggplot() +
+  geom_density(mapping = aes(x = age, fill = sex, colour = sex), 
+               alpha = 0.3
+               )
+```
+
+Vi undersøker om det er markante kjønnsforskjeller mht. alder i
+hoydeZeroInc, hoydeHighInc og HoydeNormInc.
+
+```{r}
+hoyde |>
+  ggplot() +
+  geom_histogram(
+    data = filter(hoydeNormInc, sex == "male"),
+    mapping = aes(x = age, y = after_stat(density)),
+    alpha = 0.3,
+    colour = "blue",
+    fill = "blue"
+  ) + 
+  geom_histogram(
+    data = filter(hoydeNormInc, sex == "female"),
+    mapping = aes(x = age, y = after_stat(density)),
+    alpha = 0.5,
+    colour = "red",
+    fill = "red"
+  )
+hoydeNormInc |>
+  ggplot(
+  mapping = aes(
+    x = age,
+    y = income
+    )
+  ) +
+  geom_smooth(
+    formula = y ~ x,
+    method = "lm",
+    colour = "black",
+    lwd = 0.75,
+    se = FALSE
+    )
+```
+
+```{r}
+hoyde |>
+  ggplot() +
+  geom_histogram(
+    data = filter(hoydeZeroInc, sex == "male"),
+    mapping = aes(x = age, y = after_stat(density)),
+    alpha = 0.3,
+    colour = "blue",
+    fill = "blue"
+  ) + 
+  geom_histogram(
+    data = filter(hoydeZeroInc, sex == "female"),
+    mapping = aes(x = age, y = after_stat(density)),
+    alpha = 0.5,
+    colour = "red",
+    fill = "red"
+  )
+hoydeZeroInc |>
+  ggplot(
+  mapping = aes(
+    x = age,
+    y = income
+    )
+  ) +
+  geom_smooth(
+    formula = y ~ x,
+    method = "lm",
+    colour = "black",
+    lwd = 0.75,
+    se = FALSE
+    )
+```
+
+```{r}
+hoyde |>
+  ggplot() +
+  geom_histogram(
+    data = filter(hoydeHighInc, sex == "male"),
+    mapping = aes(x = age, y = after_stat(density)),
+    alpha = 0.3,
+    colour = "blue",
+    fill = "blue"
+  ) + 
+  geom_histogram(
+    data = filter(hoydeHighInc, sex == "female"),
+    mapping = aes(x = age, y = after_stat(density)),
+    alpha = 0.5,
+    colour = "red",
+    fill = "red"
+  )
+hoydeHighInc |>
+  ggplot(
+  mapping = aes(
+    x = age,
+    y = income
+    )
+  ) +
+  geom_smooth(
+    formula = y ~ x,
+    method = "lm",
+    colour = "black",
+    lwd = 0.75,
+    se = FALSE
+    )
+```
+
+Histogrammet viser at i gruppen høy inntekt har aldersgrupper hvor det
+ikke forekommer kvinner, dette vil som tidligere nevnt gjøre at det ser
+ut som at jo høyere ansennitet ikke påvirker lønn.
+
+«Vi undersøker om det er markante kjønnsforskjeller mht. alder i
+hoydeZeroInc, hoydeHighInc og HoydeNormInc.» For å undersøke dette tror
+jeg tabeller er bedre
+
+```{r}
+hoydeZeroInc |> 
+  mutate(alder = as_factor(age)) |> 
+  select(alder) |> 
+  st()
+```
+
+```{r}
+hoydeNormInc |> 
+  mutate(alder = as_factor(age)) |> 
+  select(alder) |> 
+  st()
+```
+
+```{r}
+hoydeHighInc |> 
+  mutate(alder = as_factor(age)) |> 
+  select(alder) |> 
+  st()
+```
+
+## Konklusjon
+
+Vi ser en klar sammenheng mellom evnenivå og inntekt. Som vi så i
+box-plottet kan dette skyldes at de med høyest utdannelse har høyere
+evnenivå sammenlignet med de som ikke har utdannelse. En logisk
+konklusjon er at de me høyere utdannelse får seg jobber som gir høyere
+lønn.
+
+## Referanser
