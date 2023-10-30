@@ -3,7 +3,7 @@ title: "sec_ass"
 author: "Håkon Alne Paulsen og Hilde Kristin Jensen"
 format:
   revealjs:
-        theme: night
+        theme: blood
         reveal_options:
         code-fold: show
         incremental: true
@@ -202,9 +202,6 @@ hoyde |>
 
 ## Sammenheng mellom ansiennitet og inntekt
 
-Vi lager en scatter-plot med regresjonslinje for å undersøke om det er
-sammenheng mellom ansennitet og inntekt.
-
 ```{r}
 hoyde |> 
   ggplot(
@@ -226,14 +223,7 @@ hoyde |>
     )
 ```
 
-Det virker som at regresjonslinjen er horisontal, det vil si at det ikke
-virker å være sammenheng mellom ansennitet og alder. Dette virker
-snodig, men vi må ha i bakhodet at datasettet vi arbeider med har
-aldersgruppene 48-56, noe som kan tilsi at de allerede er på toppen av
-sin ansennitet
-
-Vi undersøker deretter om det er sammenheng mellom ansennitet og alder
-på de forskjellige kjønn:
+## Ansennitet og alder fordelt på kjønn
 
 ```{r}
 #| message: false
@@ -255,14 +245,7 @@ hoydeNormInc %>%
     )
 ```
 
-Regresjonslinjene viser igjen at mer ansennitet ikke nødvendigvis gir
-høyere lønn, selv fordelt på kjønn.
-
-Vi lager et histogram av dataene fordelt på undergrupper.
-
-Vi starter med å regne ut gjennomsnittlig ansennitet og standardavvik
-for hhv. menn og kvinner. Disse parametrene vil vi bruke for å tegne inn
-normalfordelingskurver i samme plot.
+## Endre overskrift
 
 ```{r}
 meanAgeMale <- hoyde |> 
@@ -290,6 +273,8 @@ sdAgeFemale <- hoyde |>
   pull() |> 
   sd()
 ```
+
+## legg til overskrift
 
 ```{r}
 hoyde %>%
@@ -324,15 +309,7 @@ hoyde %>%
     )
 ```
 
-Histogrammene viser at i dette datasettet er det mer kvinner enn menn i
-aldersgruppen 53-56 år. Da kvinner har lavere inntekt enn menn kan dette
-forklare resultatet i sammenhengen mellom ansennitet og alder. Jo lengre
-ansennitet en har, jo høyere er kvinneandelen, med medførende lavere
-inntekt, som kan forklare at lengre ansennitet ikke fører til høyere
-lønn. Det er ikke lønna som går ned, det er at menn med høyere inntekt
-forsvinner.
-
-En litt enklere variant:
+## legg til overskrift
 
 ```{r}
 hoydeNormInc |>
@@ -342,8 +319,7 @@ hoydeNormInc |>
                )
 ```
 
-Vi undersøker om det er markante kjønnsforskjeller mht. alder i
-hoydeZeroInc, hoydeHighInc og HoydeNormInc.
+## legg til overskrift
 
 ```{r}
 hoyde |>
@@ -378,6 +354,8 @@ hoydeNormInc |>
     )
 ```
 
+## legg til overskrift
+
 ```{r}
 hoyde |>
   ggplot() +
@@ -410,6 +388,8 @@ hoydeZeroInc |>
     se = FALSE
     )
 ```
+
+## Legg til overskrift
 
 ```{r}
 hoyde |>
@@ -444,13 +424,7 @@ hoydeHighInc |>
     )
 ```
 
-Histogrammet viser at i gruppen høy inntekt har aldersgrupper hvor det
-ikke forekommer kvinner, dette vil som tidligere nevnt gjøre at det ser
-ut som at jo høyere ansennitet ikke påvirker lønn.
-
-«Vi undersøker om det er markante kjønnsforskjeller mht. alder i
-hoydeZeroInc, hoydeHighInc og HoydeNormInc.» For å undersøke dette tror
-jeg tabeller er bedre
+## overskrift
 
 ```{r}
 hoydeZeroInc |> 
@@ -459,12 +433,16 @@ hoydeZeroInc |>
   st()
 ```
 
+## overskrift
+
 ```{r}
 hoydeNormInc |> 
   mutate(alder = as_factor(age)) |> 
   select(alder) |> 
   st()
 ```
+
+## overskrift
 
 ```{r}
 hoydeHighInc |> 
