@@ -68,16 +68,11 @@ I denne oppgaven skal vi se på to ulike sammenhenger. Sammenhengen
 mellom evnenivå og inntekt, og sammenhengen mellom ansiennitet og
 inntekt.
 
-Vi bruker datasettet heights og deler datasettet opp i tre ulike fordelt
-på inntektsnivået. Det første settet er for de med ingen inntekt. Det
-andre settet er for normal inntekt der selve inntekten er mellom 0 og
-343 830 amerikanske dollar. Det siste settet er for de 2% høyeste
-inntektene. Gjennomsnittlig inntekt for disse øvre 2% er 343 830
-amerikanske dollar.
-
 Når vi sammeligner evnenivå og inntekt, bruker vi variabelen afqt. Dette
 er en måleenhet som det amerikanske militæret bruker til å måle
 evnenivå. @zotero-254
+
+Nå vi sammenligner ansiennitet og inntekt bruker vi variabelen age.
 
 ## Sammenheng mellom inntekt og evnenivå i hoydeNormInc
 
@@ -281,5 +276,11 @@ box-plottet kan dette skyldes at de med høyest utdannelse har høyere
 evnenivå sammenlignet med de som ikke har utdannelse. En logisk
 konklusjon er at de me høyere utdannelse får seg jobber som gir høyere
 lønn.
+
+Vi klarer ikke å se en tydelig sammenheng mellom ansiennitet og
+inntekt. Dette kan skyldes at det er betydelig lavere antall
+observasjoner i de eldste aldersgruppene. Vi mener at denne forskningen
+kanskje ikke er replikerbar på annet datasett hvor det er jevnere
+fordeling av antall observasjoner per aldersgruppe.
 
 ## Referanser
