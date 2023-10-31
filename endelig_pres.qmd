@@ -1,5 +1,5 @@
 ---
-title: "sec_ass"
+title: "Inntekt, evnenivå og ansiennitet"
 author: "Håkon Alne Paulsen og Hilde Kristin Jensen"
 format:
   revealjs:
@@ -78,14 +78,6 @@ amerikanske dollar.
 Når vi sammeligner evnenivå og inntekt, bruker vi variabelen afqt. Dette
 er en måleenhet som det amerikanske militæret bruker til å måle
 evnenivå. @zotero-254
-
-## Litteraturgjennomgang
-
-Tidligere forskning viser at det er en sammenheng mellom inntekt og
-evnenivå. Det er påvis at for hvert ekstra IQ poeng, kan inntekten øke
-fra \$234 til \$616 per år @zagorsky2007. Tidligere forskning med søsken
-viser at forholdet mellom inntekt og evnenivå er sterkere mellom søstre
-sammenlignet med brødre @bound1986.
 
 ## Sammenheng mellom inntekt og evnenivå i hoydeNormInc
 
@@ -171,26 +163,6 @@ hoyde |>
 ## 
 
 ```{r}
-#| warning: false
-hoyde |>
-  ggplot() +
-  geom_histogram(
-    data = filter(hoyde, sex == "male"),
-    mapping = aes(x = afqt, y = after_stat(density)),
-    alpha = 0.3,
-    colour = "blue",
-    fill = "blue"
-  ) + 
-  geom_histogram(
-    data = filter(hoyde, sex == "female"),
-    mapping = aes(x = afqt, y = after_stat(density)),
-    alpha = 0.5,
-    colour = "red",
-    fill = "red"
-  )
-```
-
-```{r}
 hoyde |>
   filter(!is.na(afqt)) %>% 
   ggplot() +
@@ -245,71 +217,17 @@ hoydeNormInc %>%
     )
 ```
 
-## Endre overskrift
+## Kjønnsfordeling hoydeZeroInc
 
 ```{r}
-meanAgeMale <- hoyde |> 
-  filter(sex == 'male') %>% 
-  select(age) |> 
-  pull() |> 
-  mean()
-
-meanAgeFemale <- hoyde |> 
-  filter(sex == 'female') %>% 
-  select(age) |> 
-  pull() |> 
-  mean()
-
-# standard deviation
-sdAgeMale <- hoyde |> 
-  filter(sex == 'male') |> 
-  select(age) |> 
-  pull() |> 
-  sd()
-
-sdAgeFemale <- hoyde |>
-  filter(sex == 'female') |>
-  select(age) |>
-  pull() |> 
-  sd()
-```
-
-## legg til overskrift
-
-```{r}
-hoyde %>%
+hoydeZeroInc |>
   ggplot() +
-  ### male ###
-  geom_histogram(
-    data = filter(hoyde, sex == "male"),
-    mapping = aes(x = age, y = after_stat(density)),
-    binwidth = 1, alpha = 0.3, colour = 'blue', fill = 'blue'
-    ) + 
-  geom_vline(
-    xintercept = meanAgeMale,
-    colour = 'grey40', lwd = 0.75, linetype = 3
-    ) +
-  stat_function(
-    fun = dnorm,
-    args = list(mean = meanAgeMale, sd = sdAgeMale),
-    colour = 'grey40'
-    ) +
-  # female
-  geom_histogram(
-    data = filter(hoyde, sex == "female"),
-    mapping = aes(x = age, y = after_stat(density)),
-    binwidth = 1, alpha = 0.7, colour = 'pink', fill = 'pink'
-    ) +
-  stat_function(
-    fun = dnorm, args = list(mean = meanAgeFemale, sd = sdAgeFemale),
-    colour = 'pink'
-    ) +
-  geom_vline(
-    xintercept = meanAgeFemale, colour = 'pink', lwd = 0.75, linetype = 3
-    )
+  geom_density(mapping = aes(x = age, fill = sex, colour = sex), 
+               alpha = 0.3
+               )
 ```
 
-## legg til overskrift
+## Kjønnsfordeling hoydeNormInc
 
 ```{r}
 hoydeNormInc |>
@@ -319,112 +237,17 @@ hoydeNormInc |>
                )
 ```
 
-## legg til overskrift
+## Kjønnsfordeling hoydeHighInc
 
 ```{r}
-hoyde |>
-  ggplot() +
-  geom_histogram(
-    data = filter(hoydeNormInc, sex == "male"),
-    mapping = aes(x = age, y = after_stat(density)),
-    alpha = 0.3,
-    colour = "blue",
-    fill = "blue"
-  ) + 
-  geom_histogram(
-    data = filter(hoydeNormInc, sex == "female"),
-    mapping = aes(x = age, y = after_stat(density)),
-    alpha = 0.5,
-    colour = "red",
-    fill = "red"
-  )
-hoydeNormInc |>
-  ggplot(
-  mapping = aes(
-    x = age,
-    y = income
-    )
-  ) +
-  geom_smooth(
-    formula = y ~ x,
-    method = "lm",
-    colour = "black",
-    lwd = 0.75,
-    se = FALSE
-    )
-```
-
-## legg til overskrift
-
-```{r}
-hoyde |>
-  ggplot() +
-  geom_histogram(
-    data = filter(hoydeZeroInc, sex == "male"),
-    mapping = aes(x = age, y = after_stat(density)),
-    alpha = 0.3,
-    colour = "blue",
-    fill = "blue"
-  ) + 
-  geom_histogram(
-    data = filter(hoydeZeroInc, sex == "female"),
-    mapping = aes(x = age, y = after_stat(density)),
-    alpha = 0.5,
-    colour = "red",
-    fill = "red"
-  )
-hoydeZeroInc |>
-  ggplot(
-  mapping = aes(
-    x = age,
-    y = income
-    )
-  ) +
-  geom_smooth(
-    formula = y ~ x,
-    method = "lm",
-    colour = "black",
-    lwd = 0.75,
-    se = FALSE
-    )
-```
-
-## Legg til overskrift
-
-```{r}
-hoyde |>
-  ggplot() +
-  geom_histogram(
-    data = filter(hoydeHighInc, sex == "male"),
-    mapping = aes(x = age, y = after_stat(density)),
-    alpha = 0.3,
-    colour = "blue",
-    fill = "blue"
-  ) + 
-  geom_histogram(
-    data = filter(hoydeHighInc, sex == "female"),
-    mapping = aes(x = age, y = after_stat(density)),
-    alpha = 0.5,
-    colour = "red",
-    fill = "red"
-  )
 hoydeHighInc |>
-  ggplot(
-  mapping = aes(
-    x = age,
-    y = income
-    )
-  ) +
-  geom_smooth(
-    formula = y ~ x,
-    method = "lm",
-    colour = "black",
-    lwd = 0.75,
-    se = FALSE
-    )
+  ggplot() +
+  geom_density(mapping = aes(x = age, fill = sex, colour = sex), 
+               alpha = 0.3
+               )
 ```
 
-## overskrift
+## hoydeZeroInc
 
 ```{r}
 hoydeZeroInc |> 
@@ -433,7 +256,7 @@ hoydeZeroInc |>
   st()
 ```
 
-## overskrift
+## hoydeNormInc
 
 ```{r}
 hoydeNormInc |> 
@@ -442,7 +265,7 @@ hoydeNormInc |>
   st()
 ```
 
-## overskrift
+## hoydeHighInc
 
 ```{r}
 hoydeHighInc |> 
